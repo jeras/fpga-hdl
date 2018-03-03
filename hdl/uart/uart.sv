@@ -1,28 +1,28 @@
 module uart #(
   // UART parameters
-  parameter BYTESIZE = 8,              // transfer size in bits
+  parameter int BYTESIZE = 8,              // transfer size in bits
   parameter PARITY   = "NONE",         // parity type "EVEN", "ODD", "NONE"
-  parameter STOPSIZE = 1,              // number of stop bits
-  parameter N_BIT    = 2,              // clock cycles per bit
-  parameter N_LOG    = $clog2(N_BIT),  // size of boudrate generator counter
+  parameter int STOPSIZE = 1,              // number of stop bits
+  parameter int N_BIT    = 2,              // clock cycles per bit
+  parameter int N_LOG    = $clog2(N_BIT),  // size of boudrate generator counter
   // Avalon parameters
-  parameter AAW = 1,     // address width
-  parameter ADW = 32,    // data width
-  parameter ABW = ADW/8  // byte enable width
+  parameter int AAW = 1,     // address width
+  parameter int ADW = 32,    // data width
+  parameter int ABW = ADW/8  // byte enable width
 )(
   // system signals
-  input                clk,  // clock
-  input                rst,  // reset (asynchronous)
+  input  logic           clk,  // clock
+  input  logic           rst,  // reset (asynchronous)
   // Avalon MM interface
-  input                avalon_read,
-  input                avalon_write,
-  input      [ADW-1:0] avalon_writedata,
-  output     [ADW-1:0] avalon_readdata,
-  output               avalon_waitrequest,
-  output               avalon_interrupt,
+  input  logic           avalon_read,
+  input  logic           avalon_write,
+  input  logic [ADW-1:0] avalon_writedata,
+  output logic [ADW-1:0] avalon_readdata,
+  output logic           avalon_waitrequest,
+  output logic           avalon_interrupt,
   // UART
-  input                uart_rxd,  // receive
-  output reg           uart_txd   // transmit
+  input  logic           uart_rxd,  // receive
+  output logic           uart_txd   // transmit
 );
 
 // UART transfer length
@@ -32,26 +32,26 @@ localparam UTL = BYTESIZE + (PARITY!="NONE") + STOPSIZE;
 localparam PRT = (PARITY!="EVEN");
 
 // Avalon signals
-wire avalon_trn_w;
-wire avalon_trn_r;
+logic avalon_trn_w;
+logic avalon_trn_r;
 
 // baudrate signals
-reg    [N_LOG-1:0] txd_bdr, rxd_bdr;
-reg                txd_ena, rxd_ena;
+logic    [N_LOG-1:0] txd_bdr, rxd_bdr;
+logic                txd_ena, rxd_ena;
 
 // UART signals
-reg                txd_run, rxd_run;  // transfer run status
-reg          [3:0] txd_cnt, rxd_cnt;  // transfer length counter
-reg [BYTESIZE-1:0] txd_dat, rxd_dat;  // data shift register
-reg                txd_prt, rxd_prt;  // parity register
+logic                txd_run, rxd_run;  // transfer run status
+logic          [3:0] txd_cnt, rxd_cnt;  // transfer length counter
+logic [BYTESIZE-1:0] txd_dat, rxd_dat;  // data shift register
+logic                txd_prt, rxd_prt;  // parity register
 
-wire               rxd_start, rxd_end;
+logic                rxd_start, rxd_end;
  
 // receiver status
-reg                status_rdy;  // receive data ready
-reg                status_err;  // receive data error
-reg                status_prt;  // receive data parity error
-reg [BYTESIZE-1:0] status_dat;  // receive data register
+logic                status_rdy;  // receive data ready
+logic                status_err;  // receive data error
+logic                status_prt;  // receive data parity error
+logic [BYTESIZE-1:0] status_dat;  // receive data register
 
 //////////////////////////////////////////////////////////////////////////////
 // Avalon logic
