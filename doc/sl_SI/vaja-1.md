@@ -101,6 +101,7 @@ Znotraj stavka `always` je možno prirejati vrednost le signalom tipa `logic`/`r
 Obstajajo tudi drugi tipi stavkov, a se uporabljajo skoraj predvsem za simulacije.
 
 Konstrukta `#` in `@` operirata nad časom:
+
 | Konstrukt              | Opis                                                                                |
 |------------------------|-------------------------------------------------------------------------------------|
 | # number_of_time_units | Vstavi pavzo za dano število časovnih enot.                                         |
@@ -114,6 +115,7 @@ sprememba kateregakoli signala predstavlja dogodek.
 Za sinhrono logiko je potrebno pred signal postaviti besedo `posedge` (prehod `0`->`1`) ali `negedge` (prehod `1`->`0`).
 
 Operatorja za prirejanje vrednosti signalom sta = in <=. Njun pomen je na splošno (predvsem so tu mišljene simulacije):
+
 | Operator | Opis                                                                                                         |
 |----------|--------------------------------------------------------------------------------------------------------------|
 |  =       |     blocking assignment - naslednja operacija se izvede šele, ko se dana operacija zaključi (sekvenčne kode) |
@@ -134,6 +136,7 @@ Dejansko ima lahko vsak bit v Verilog simulaciji enega od štirih stanj `0`, `1`
 podrobneje bodo stanja opisana kasneje.
 
 Matematični operatorji (niso vsi našteti):
+
 | Operator              | Opis                                                     |
 |-----------------------|----------------------------------------------------------|
 | `==` `!=` `===` `!==` | enakost, neenakost dveh vektorjev                        |
@@ -270,63 +273,106 @@ je del testbench kode tudi instanca modula `counter`.
 
 ## Simulacija
 
-Simulacije omogoča testiranje kode brez potrebe po implementaciji. Uporablja se predvsem v prvih fazah razvoja, ko koda še ni razvita dovolj daleč, da bi bila FPGA implementacija uporabna, uporablja se pa tudi v kasnejših fazah razvoja, za preverjanje, če kak popravek v kodi pokvari nekaj kar je že delovalo pravilno.
+Simulacije omogoča testiranje kode brez potrebe po implementaciji.
+Uporablja se predvsem v prvih fazah razvoja, ko koda še ni razvita dovolj daleč, da bi bila FPGA implementacija uporabna.
+Uporablja se pa tudi v kasnejših fazah razvoja, za preverjanje, če kak popravek v kodi pokvari nekaj kar je že delovalo pravilno.
 
 Za potrebe razvoja in testranja ima simulacija dosti prednosti pred implementacijo:
-za razvoj ni potrebna nobena strojna oprema
-kratka pot od RTL spremembe do zaključka testa (ker ni potrebe po dolgotrajni FPGA implementaciji)
-podroben vpogled v dogajanje v notranjosti logičnega vezja (na FPGA implementaciji je možno opazovati le IO signale)
-možno je opazovati stanje sistema v času pred napako
-možno je napisati dodatno testno kodo, ki bolj nazorno prikaže pravilnost delovanja (preverjanje protokolov)
-možno je testirati situacije, ki se običajno ne pojavljajo ob normalni uporabi (lahko se pa pojavijo ob spremembi okolja)
+* za razvoj ni potrebna nobena strojna oprema,
+* kratka pot od RTL spremembe do zaključka testa (ker ni potrebe po dolgotrajni FPGA implementaciji),
+* podroben vpogled v dogajanje v notranjosti logičnega vezja (na FPGA implementaciji je možno opazovati le IO signale),
+* možno je opazovati stanje sistema v času pred napako,
+* možno je napisati dodatno testno kodo, ki bolj nazorno prikaže pravilnost delovanja (preverjanje protokolov),
+* možno je testirati situacije, ki se običajno ne pojavljajo ob normalni uporabi (lahko se pa pojavijo ob spremembi okolja).
+
 Ima pa simulacija tudi nekaj slabosti:
-koda, ki deluje v simulatorju ne deluje nujno tudi v implementaciji, možno je, da se je sploh ne da implementirati
-simulacija je le aproksimacija realnega sistema, sploh to velja za IO
-simulacija teče počasneje od implementacije, sploh se to pozna ob testiranju programske opreme, ki teče na procesorju znotraj simulatorja
-Obstajajo še kombinirane rešitve, ki so posledično kombinacija dobrih in slabih lastnosti simulacije in implementacije. FPGA proizvajalci naprimer ponujajo orodja, s katerimi je možno opazovati interne signale pred in po napaki. Drugi pristop je simulacija z poenostavljenim RTL modelom, ta omogoča večjo hitrost simulacije.
-Simulacija z OpenSource orodji
-Navodila so napisana za simulator Icarus Verilog in prikazovalnik časovnih diagramov GTKWave na operacijskem sistemu Ubuntu 9.10 (Karmic Koala). Sicer je možno uporabljena programa instalirati tudi na Wndows ali Mac OS X, vendar je to izven namena tega članka. Prednost OpenSource orodij je v tem, da ne postavljajo omejitev na uporabo. ModelSim, ki ga dobimo zastonj ob Alterinem razvojnem okolju naprimer omejuje število vrstic kode, ki jo je možno simulirati.
+* koda, ki deluje v simulatorju ne deluje nujno tudi v implementaciji, možno je, da se je sploh ne da implementirati,
+* simulacija je le aproksimacija realnega sistema, sploh to velja za IO,
+* simulacija teče počasneje od implementacije, sploh se to pozna ob testiranju programske opreme, ki teče na procesorju znotraj simulatorja.
+
+Obstajajo še kombinirane rešitve, ki so posledično kombinacija dobrih in slabih lastnosti simulacije in implementacije.
+FPGA proizvajalci naprimer ponujajo orodja, s katerimi je možno opazovati interne signale pred in po napaki.
+Drugi pristop je simulacija z poenostavljenim RTL modelom, ta omogoča večjo hitrost simulacije.
+
+### Simulacija z OpenSource orodji
+
+Navodila so napisana za simulator [Icarus Verilog](http://iverilog.icarus.com/)
+in prikazovalnik časovnih diagramov [GTKWave](http://gtkwave.sourceforge.net/)
+na operacijskem sistemu Ubuntu 18.04.
+Sicer je možno uporabljena programa instalirati tudi na Windows ali Mac OS X, vendar je to izven namena tega članka.
+Prednost Open Source orodij je v tem, da ne postavljajo omejitev na uporabo.
+ModelSim, ki ga dobimo zastonj ob Alterinem razvojnem okolju na primer omejuje število vrstic kode, ki jo je možno simulirati.
 
 Predhodno je potrebno instalirati dve novi aplikaciji:
+```bash
 $ sudo apt-get install verilog gtkwave
+```
 
-Naštete korake je možno zagnati s skripto iverilog_gtkwave.scr, ki je priložena v priponki na dnu strani.
+Naštete korake je možno zagnati s skripto `iverilog_gtkwave.scr`.
 
 Prvi korak je prevajanje Verilog kode (testbench in RTL), generira se skriptna koda counter.out
+```bash
 $ iverilog -o counter.out counter_tb.v counter.v
-v drugem koraku se zažene simulator, ta generira časovne diagrame counter.vcd
+```
+v drugem koraku se zažene simulator, ta generira časovne diagrame `counter.vcd`
+```bash
 $ vvp counter.out
+```
 za prikaz časovnih diagramov se zažene
+```bash
 $ gtkwave counter.vcd gtkwave.sav &
-datoteka gtkwave.sav vsebuje seznam signalov, ki naj bojo prikazani, če se jo izpusti, je še vedno možno izbrati signale ročno.
+```
+datoteka `gtkwave.sav` vsebuje seznam signalov, ki naj bojo prikazani, če se jo izpusti, je še vedno možno izbrati signale ročno.
 
 Časovni diagram simulacije števca:
+![Counter GTKWave screenshoot](../counter_gtkwave.png)
 
+### Simulacija z ModelSim Altera Edition
 
-Simulacija z ModelSim Altera Edition
-ModelSim je vrhunski profesionalni HDL simulator, eden izmed treh velikih. Za ta tečaj je uporabljen, ker ga FPGA proizvajalca Altera in Xilinx prilagata svoji zastonjski ponudbi. Zastonjska verzija je sicer omejena na simulacijo 10,000 vrstic kode (kar zadošča za manjše projekte) in je počasnejša od plačljive, hkrati pa ponuja večjo funkcionalnost in je hitrejša kakor OpenSource programi.
+ModelSim je vrhunski profesionalni HDL simulator, eden izmed [treh velikih](https://en.wikipedia.org/wiki/List_of_HDL_simulators).
+Za ta tečaj je uporabljen, ker ga FPGA proizvajalel Altera prilaga svoji zastonjski ponudbi.
+Zastonjska verzija je sicer omejena na simulacijo 10,000 vrstic kode (kar zadošča za manjše projekte) in je počasnejša od plačljive,
+hkrati pa ponuja večjo funkcionalnost in je hitrejša kakor Open Source programi.
 
 Za začetek bo primeren tutorial, za zahtevnejše projekte pa se mora uporabnik spopasti s kar obsežno dokumentacijo.
 
-Tutorial za ModelSim se nahaja v instalacijski mapi /installdir/modelsim_ase/docs/pdfdocs/modelsim_tut.pdf (pot morate prilagoditi svojemu operacijskemu sistemu). Preberite si poglavje 3 "Basic Simulation", ki prav tako temelji na primeru s števcem. Priporočam, da poizkusite najprej primer iz tutoriala, nato pa še tukaj opisani primer števca (izvorna koda je v priponki spodaj counter.tgz ali pa jo poberete iz GIT skladišča).
-Implementacija
-Implementacija je postopek s katerim se Verilog (lahko tudi VHDL, sheme, ...) izvorna koda prevede v konfiguracijsko datoteko za FPGA vezje. Podoben, zahtevnejši postopek obstaja za ASIC vezja, vendar ne bo opisan v tem tečaju.
+Tutorial za ModelSim se nahaja v instalacijski mapi `/installdir/modelsim_ase/docs/pdfdocs/modelsim_tut.pdf` (pot morate prilagoditi svojemu operacijskemu sistemu).
+Preberite si poglavje 3 "Basic Simulation", ki prav tako temelji na primeru s števcem.
+Priporočam, da poizkusite najprej primer iz tutoriala,
+nato pa še tukaj opisani primer [števca](/hdl/counter).
 
-Naslednji koraki so potrebni za implementacijo, večino jih opravi razvojno okolje brez dodatnega posredovanja uporabnika.
-parser (preveri, če je koda v skladu z standardizirano sintakso jezika)
-synthesizer (prevede Verilog kodo v elemente logičnih vezij - registri, avtomati, seštevalniki, množilniki, pomnilniški bloki, IO priključki, ...)
-optimizer (razdre hierarhijo in optimizira sekvenčno logiko ter nekatere avtomate)
-fitter (preslika registre, sekvenčno logiko, vodila, pomnilnike, IO, ... na vire v izbranem FPGA vezju)
-timing analysis (izračuna zakasnitve vseh signalov in preveri, če je dana implementacija podanim hitrosnim zahtevam)
-Vsak od teh korakov javlja svojo tip opozoril in napak. Uporabnik mora spremljati opozorila in popravljati napake. Naslednji del tečaja bo povedal več o običajnih napakah pri pisanju logičnih vezij
-Projekt DE1_blink
-Implementacija
-Projekt DE1_blink (najdete ga spodaj med priponkami) je implementacija števca na DE1 razvojni ploščici. Števec podoben tistemu opisanemu zgoraj je vezan na sponke FPGA vezja, ki so nadalje vezane na zelene LED, tako da je možno opazovati stanje števca.
+## Implementacija
+
+Implementacija je postopek s katerim se Verilog (lahko tudi VHDL, sheme, ...)
+izvorna koda prevede v konfiguracijsko datoteko za FPGA vezje.
+Podoben, zahtevnejši postopek obstaja za ASIC vezja, vendar ne bo opisan v tem tečaju.
+
+Naslednji koraki so potrebni za implementacijo,
+večino jih opravi razvojno okolje brez dodatnega posredovanja uporabnika.
+1. parser (preveri, če je koda v skladu z standardizirano sintakso jezika)
+2. synthesizer (prevede Verilog kodo v elemente logičnih vezij - registri, avtomati, seštevalniki, množilniki, pomnilniški bloki, IO priključki, ...)
+3. optimizer (razdre hierarhijo in optimizira sekvenčno logiko ter nekatere avtomate)
+4. fitter (preslika registre, sekvenčno logiko, vodila, pomnilnike, IO, ... na vire v izbranem FPGA vezju)
+5. statična časovna analiza (izračuna zakasnitve vseh signalov in preveri, če je dana implementacija podanim hitrosnim zahtevam)
+
+Vsak od teh korakov javlja svojo tip opozoril in napak.
+Uporabnik mora spremljati opozorila in popravljati napake.
+Naslednji del tečaja bo povedal več o običajnih napakah pri pisanju logičnih vezij
+
+## Projekt DE1_blink
+
+### Implementacija
+
+Projekt DE1_blink (najdete ga spodaj med priponkami) je implementacija števca na DE1 razvojni ploščici.
+Števec podoben tistemu opisanemu zgoraj je vezan na sponke FPGA vezja,
+ki so nadalje vezane na zelene LED, tako da je možno opazovati stanje števca.
 
 Projekt obsega tri datoteke:
-DE1_blink.v (Verilog koda, kjer so našteti vsi IO signali DE1 plošče in zapisana je koda števca)
-DE1_blink.qpf (Quartus II projekt)
-DE1_blink.qsf (vsebuje seznam datotek z izvorno kodo, seznam pin-ov in poimenovanih signalov priključenih nanje, ...)
+* DE1_blink.v (Verilog koda, kjer so našteti vsi IO signali DE1 plošče in zapisana je koda števca)
+* DE1_blink.qpf (Quartus II projekt)
+* DE1_blink.qsf (vsebuje seznam datotek z izvorno kodo, seznam pin-ov in poimenovanih signalov priključenih nanje, ...)
+
 Projekt je potrebno odpreti z orodjem Quartus, nakar se ga prevede z opcijo v meniju "Processing -> Start Compilation".
-Programiranje v FPGA
+
+### Programiranje v FPGA
 
