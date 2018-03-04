@@ -325,7 +325,7 @@ $ gtkwave counter.vcd gtkwave.sav &
 datoteka `gtkwave.sav` vsebuje seznam signalov, ki naj bojo prikazani, če se jo izpusti, je še vedno možno izbrati signale ročno.
 
 Časovni diagram simulacije števca:
-![Counter GTKWave screenshoot](../counter_gtkwave.png)
+![Counter GTKWave screenshoot](../counter-gtkwave.png)
 
 ### Simulacija z ModelSim Altera Edition
 
