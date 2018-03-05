@@ -108,34 +108,49 @@ običajno prožijo napako vodila (bus error).
 Spodnja bita naslova `address[1:0]` sta definirana samo znotraj procesorja,
 na 32bitnem vodilu nimata pomena.
 
-| velikost dostopa	 address[31:2]	address[1:0]	byteenable[3:0]	 writedata[32:0]
-| 1	 30'hVVVVVVVv	 2'b00	 4'b1000	 32'hVVxxxxxx
-| 1	 30'hVVVVVVVv	 2'b01	 4'b0100	 32'hxxVVxxxx
-| 1	 30'hVVVVVVVv	 2'b10	 4'b0010	 32'hxxxxVVxx
-| 1	 30'hVVVVVVVv	 2'b11	 4'b0001	 32'hxxxxxxVV
-| 2	 30'hVVVVVVVv	 1'b00	 4'b1100	 32'hVVVVxxxx
-| 2	 30'hVVVVVVVv	 2'b10	 4'b0011	 32'hxxxxVVVV
-| 4	 30'hVVVVVVVv	 2'b00	 4'b1111	 32'hVVVVVVVV
+| velikost dostopa | `address[31:2]` | `address[1:0]` | `byteenable[3:0]` | `writedata[32:0]` |
+|------------------|-----------------|----------------|-------------------|-------------------|
+| 1                | 30'hVVVVVVVv    | 2'b00          | 4'b1000           | 32'hVVxxxxxx      |
+| 1                | 30'hVVVVVVVv    | 2'b01          | 4'b0100           | 32'hxxVVxxxx      |
+| 1                | 30'hVVVVVVVv    | 2'b10          | 4'b0010           | 32'hxxxxVVxx      |
+| 1                | 30'hVVVVVVVv    | 2'b11          | 4'b0001           | 32'hxxxxxxVV      |
+| 2                | 30'hVVVVVVVv    | 1'b00          | 4'b1100           | 32'hVVVVxxxx      |
+| 2                | 30'hVVVVVVVv    | 2'b10          | 4'b0011           | 32'hxxxxVVVV      |
+| 4                | 30'hVVVVVVVv    | 2'b00          | 4'b1111           | 32'hVVVVVVVV      |
 
 Legenda:
+
 `0`, `1` - kostanti,
+
 `v`, `V` - definirana vrednost, ki ima vpliv na učinek ciklaV - definirana vrednost, ki ima vpliv na učinek cikla
+
 `x`, `X` - nedefinirana poljubna vrednost, ki nima vpliva na učinek cikla
 
 ## Primer: Avalon MM RAM
 
-Dani primer obsega Verilog zapis RAM-a z Avalon MM vmesnikom in testbench kodo, ki prikaže zaporedje pisalnih in bralnih ciklov do pomnilnika.
+Dani primer obsega Verilog zapis RAM-a z Avalon MM vmesnikom in testbench kodo,
+ki prikaže zaporedje pisalnih in bralnih ciklov do pomnilnika.
 
 ### RTL
 
-Koda je sestavljena iz dveh kosov, prvo je Verilog zapis RAM pomnilnika, ki ga Quartus neposredno prevede v namenske RAM bloke znotraj FPGA vezij. Navodila, kako zapisati RAM, da se pravilno prevede v FPGA RAM ponuja Altera v dokumentu "Recommended HDL Coding Styles" poglavje "Inferring Memory Functions from HDL Code".
+Koda je sestavljena iz dveh kosov, prvo je Verilog zapis RAM pomnilnika,
+ki ga Quartus neposredno prevede v namenske RAM bloke znotraj FPGA vezij.
+Navodila, kako zapisati RAM, da se pravilno prevede v FPGA RAM
+ponuja Altera v dokumentu "Recommended HDL Coding Styles"
+poglavje "Inferring Memory Functions from HDL Code".
 
-Opazite lahko, da RAM pomnilnik vrbe prebrani podatek z enim ciklom zakasnitve za podanim naslovom, to je običajna lastnost tako FPGA kakor ASIC pomnilnikov.
+Opazite lahko, da RAM pomnilnik vrne prebrani podatek z enim ciklom zakasnitve za podanim naslovom,
+to je običajna lastnost tako FPGA kakor ASIC pomnilnikov.
 
-Pomnilnik je razdeljen v 4 kose, za vsak Byte posebej. Da ne bi bilo potrebno 4 krat pisati podobne kode poskrbi stavek generate. Verilog prevajalnik odvije generate for zanko v 4 kopije iste kode z različnimi konstantami.
+Pomnilnik je razdeljen v 4 kose, za vsak Byte posebej.
+Da ne bi bilo potrebno 4 krat pisati podobne kode poskrbi stavek generate.
+Verilog prevajalnik odvije generate for zanko v 4 kopije iste kode z različnimi konstantami.
 
-Poleg pomnilnika modul vsebuje tudi kodo za Avalon MM vodilo. Podatki so preprosto vezani na izhod readdata, waitrequest pa je zvezan tako, da se pisanje izvede takoj (v enem ciklu) pri branju pa je dodan en cikel zakasnitve (skupaj dva cikla).
+Poleg pomnilnika modul vsebuje tudi kodo za Avalon MM vodilo.
+Podatki so preprosto vezani na izhod readdata, waitrequest pa je zvezan tako,
+da se pisanje izvede takoj (v enem ciklu) pri branju pa je dodan en cikel zakasnitve (skupaj dva cikla).
 
+```SystemVerilog
 module avalon_ram #(
   parameter ADW = 32,              // data width
   parameter ABW = ADW/8,           // byte enable width
@@ -194,14 +209,20 @@ data_valid <= read & ~data_valid;
 assign waitrequest = ~(write | data_valid);
 
 endmodule
-Testbench
-Testbench vsebuje task avalon_cycle, ki izvede Avalon MM cikel s podanimi parametri in ob tem izpiše obsežen opis cikla. Testbench je zapisan tako, da izvede celoten nabor dovoljenih načinov dostopa.
+```
 
+### Testbench
+
+Testbench vsebuje task avalon_cycle, ki izvede Avalon MM cikel s podanimi parametri
+in ob tem izpiše obsežen opis cikla.
+Testbench je zapisan tako, da izvede celoten nabor dovoljenih načinov dostopa.
+
+```SystemVerilog
 `timescale 1ns / 1ps
 
 module avalon_ram_tb;
 
-// system clock parameters                                                                                                                                              
+// system clock parameters
 localparam real FRQ = 24_000_000;     // clock frequency 24MHz
 localparam real CP = 1000000000/FRQ;  // clock period
 
@@ -339,3 +360,4 @@ avalon_ram #(
 );
 
 endmodule
+```
