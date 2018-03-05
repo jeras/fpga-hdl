@@ -1,7 +1,7 @@
 module uart #(
   // UART parameters
   parameter int BYTESIZE = 8,              // transfer size in bits
-  parameter PARITY   = "NONE",         // parity type "EVEN", "ODD", "NONE"
+  parameter     PARITY   = "NONE",         // parity type "EVEN", "ODD", "NONE"
   parameter int STOPSIZE = 1,              // number of stop bits
   parameter int N_BIT    = 2,              // clock cycles per bit
   parameter int N_LOG    = $clog2(N_BIT),  // size of boudrate generator counter
@@ -214,4 +214,4 @@ else begin
   else if (rxd_end)      status_err <= status_rdy;
 end
 
-endmodule
+endmodule: uart
