@@ -71,7 +71,8 @@ Za tiste, ki se še niso srečali z temi orodji (bolj pogosta so v poklicnem oko
 Sicer pa se bo GIT uporabljal za dostop do zadnje verzije izvorne kode raznih projektov, ki so uporabljeni kakor primeri v tečaju.
 
 Ob razvoju programske opreme (ali ob pisanju kakega daljšega dokumenta) avtor pogosto potrebuje starejšo verzijo kode (dokumenta).
-Najosnovnejša metoda je preimenovanje datoteke z dodajanjem oštevilčenih pripon (naprimer datoteka_01.doc, datoteka_02.doc, ... datoteka_nn.doc).
+Najosnovnejša metoda je preimenovanje datoteke z dodajanjem oštevilčenih pripon
+(naprimer `datoteka_01.doc`, `datoteka_02.doc`, ... `datoteka_nn.doc`).
 Problemi so znani vsakemu, ki je uporabljal to metodo, prej ali slej pride do zbrke.
 
 Programi za nadzor izvorne kode omogočajo pregledno spremljanje zgodovine projekta.
